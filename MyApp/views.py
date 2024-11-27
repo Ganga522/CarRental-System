@@ -11,7 +11,7 @@ def index(request):
 	return render(request,'index.html')
 
 def about(request):
-    return render(request,'about.html ')
+    return render(request,'about.html')
 
 def register(request):
     if request.method == "POST":
@@ -74,7 +74,7 @@ def vehicles(request):
     cars = Car.objects.all()
     # print(cars)
     params = {'car':cars}
-    return render(request,'vehicles.html ',params)
+    return render(request,'vehicles.html',params)
 
 def bill(request):
     cars = Car.objects.all()
@@ -84,6 +84,7 @@ def bill(request):
 def order(request):
     if request.method == "POST":
         billname = request.POST.get('billname','')
+        order_id = request.POST.get('uniqueId','')
         billemail = request.POST.get('billemail','')
         billphone = request.POST.get('billphone','')
         billaddress = request.POST.get('billaddress','')
@@ -95,12 +96,16 @@ def order(request):
         tl = request.POST.get('tl','')
         # print(request.POST['cars11'])
         
-        order = Order(name = billname,email = billemail,phone = billphone,address = billaddress,city=billcity,cars = cars11,days_for_rent = dayss,date = date,loc_from = fl,loc_to = tl)
+        order = Order(order_id = order_id,name = billname,email = billemail,phone = billphone,address = billaddress,city=billcity,cars = cars11,days_for_rent = dayss,date = date,loc_from = fl,loc_to = tl)
         order.save()
         return redirect('home')
     else:
         print("error")
         return render(request,'bill.html')
+
+from django.core.mail import send_mail
+from django.shortcuts import render
+from .models import Contact 
 
 def contact(request):
     if request.method == "POST":
@@ -111,4 +116,45 @@ def contact(request):
 
         contact = Contact(name = contactname, email = contactemail, phone_number = contactnumber,message = contactmsg)
         contact.save()
-    return render(request,'contact.html ')
+        subject = "Thank you for contacting us!"
+        message = f"Hello {contactname},\n\nThank you for reaching out to us. We have received your message:\n\n\"{contactmsg}\"\n\nWe will get back to you soon!"
+        from_email = 'chandusiriyala7@gmail.com'  # Replace with your email
+        recipient_list = [contactemail]
+
+        try:
+            send_mail(subject, message, from_email, recipient_list)
+        except Exception as e:
+            print(f"Error sending email: {e}")
+
+    return render(request, 'contact.html')
+
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from .models import Order
+
+def getOrder(request):
+    # Get all orders placed by the logged-in user
+    orders = Order.objects.filter(email=request.user.email)
+     
+    
+    return render(request, 'orders.html', {'orders': orders})
+
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from .models import Order
+
+@login_required
+def delete_order(request ,order_id):
+    # Try to fetch the order associated with the given order_id and current user (email)
+    order = get_object_or_404(Order, order_id= order_id, email=request.user.email)
+
+    if request.method == "POST":
+        # Proceed to delete the order
+        order.delete()
+        return redirect('getOrder')
+         
+        
+
+    # If the request is not POST, just redirect back to the order listing page
+    return redirect('getOrder')

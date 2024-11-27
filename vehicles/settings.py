@@ -9,6 +9,11 @@ https://docs.djangoproject.com/en/4.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
+import ssl
+import certifi
+
+ssl._create_default_https_context = ssl._create_unverified_context
+ssl._CERTIFICATES = certifi.where()
 
 import os
 from pathlib import Path
@@ -140,3 +145,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR,"static")
 ]
+
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587 
+EMAIL_USE_TLS = True  
+EMAIL_USE_SSL = False   
+EMAIL_HOST_USER = 'chandusiriyala7@gmail.com'   
+EMAIL_HOST_PASSWORD = 'pqmuzsekjamehsnv'   
+DEFAULT_FROM_EMAIL = 'chandusiriyala7@gmail.com'

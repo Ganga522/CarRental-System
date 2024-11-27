@@ -10,6 +10,10 @@
   
   <div class="cols my-4">
     <h2 style="text-align : center" class="head my-4">Booking Details</h2>   
+        <div class="form-group col-md-12">
+          <label for="uniqueId">Unique ID (Auto-Generated):</label>
+          <input type="text" class="form-control" id="uniqueId" name="uniqueId" readonly>
+      </div>
       <div class="form-group col-md-12">
         <label for="inputEmail4">Full Name : </label>
         <input type="text" class="form-control" id="billname" name = "billname" placeholder="Full Name">
@@ -261,5 +265,10 @@ function printElement(elem) {
     $printSection.appendChild(domClone);
     window.print();
 }
+document.getElementById('uniqueId').value =  Date.now();
+
+// Restrict Pickup Date to future dates
+const today = new Date().toISOString().split('T')[0];
+document.getElementById('date').setAttribute('min', today);
 </script>
 {% endblock body %}
